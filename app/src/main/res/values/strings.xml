@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">FirebaseDatabaseExample</string>
+
+    <array name="genres">
+        <item name="Food">Food</item>
+        <item name="Drinks">Drinks</item>
+
+
+
+
+    </array>
+</resources>

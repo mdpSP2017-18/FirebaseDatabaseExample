@@ -1,0 +1,258 @@
+<html>
+<head>
+<title>MainActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(0,128,0); font-weight: bold; }
+.s3 { color: rgb(128,128,128); font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+MainActivity.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">package </span><span class="s1">net.simplifiedcoding.firebasedatabaseexample; 
+ 
+</span><span class="s0">import </span><span class="s1">android.content.Intent; 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.AlertDialog; 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.AppCompatActivity; 
+</span><span class="s0">import </span><span class="s1">android.os.Bundle; 
+</span><span class="s0">import </span><span class="s1">android.text.TextUtils; 
+</span><span class="s0">import </span><span class="s1">android.view.LayoutInflater; 
+</span><span class="s0">import </span><span class="s1">android.view.View; 
+</span><span class="s0">import </span><span class="s1">android.widget.AdapterView; 
+</span><span class="s0">import </span><span class="s1">android.widget.ArrayAdapter; 
+</span><span class="s0">import </span><span class="s1">android.widget.Button; 
+</span><span class="s0">import </span><span class="s1">android.widget.EditText; 
+</span><span class="s0">import </span><span class="s1">android.widget.ListView; 
+</span><span class="s0">import </span><span class="s1">android.widget.Spinner; 
+</span><span class="s0">import </span><span class="s1">android.widget.Toast; 
+ 
+</span><span class="s0">import </span><span class="s1">com.google.firebase.database.DataSnapshot; 
+</span><span class="s0">import </span><span class="s1">com.google.firebase.database.DatabaseError; 
+</span><span class="s0">import </span><span class="s1">com.google.firebase.database.DatabaseReference; 
+</span><span class="s0">import </span><span class="s1">com.google.firebase.database.FirebaseDatabase; 
+</span><span class="s0">import </span><span class="s1">com.google.firebase.database.ValueEventListener; 
+ 
+</span><span class="s0">import </span><span class="s1">java.util.ArrayList; 
+</span><span class="s0">import </span><span class="s1">java.util.List; 
+ 
+</span><span class="s0">public class </span><span class="s1">MainActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity { 
+    </span><span class="s0">public static final </span><span class="s1">String ARTIST_NAME = </span><span class="s2">&quot;net.simplifiedcoding.firebasedatabaseexample.artistname&quot;</span><span class="s1">; 
+    </span><span class="s0">public static final </span><span class="s1">String ARTIST_ID = </span><span class="s2">&quot;net.simplifiedcoding.firebasedatabaseexample.artistid&quot;</span><span class="s1">; 
+ 
+    EditText editTextName; 
+    Spinner spinnerGenre; 
+    Button buttonAddArtist; 
+    ListView listViewArtists; 
+ 
+    </span><span class="s3">//a list to store all the menu from firebase database</span><span class="s1">
+    List&lt;Artist&gt; menus;
+ 
+    </span><span class="s3">//our database reference object</span><span class="s1"> 
+    DatabaseReference databaseArtists; 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onCreate(Bundle savedInstanceState) { 
+        </span><span class="s0">super</span><span class="s1">.onCreate(savedInstanceState); 
+        setContentView(R.layout.activity_main); 
+ 
+        </span><span class="s3">//getting the reference of menus node</span><span class="s1">
+        databaseArtists = FirebaseDatabase.getInstance().getReference(</span><span class="s2">&quot;menus&quot;</span><span class="s1">);
+ 
+        </span><span class="s3">//getting views</span><span class="s1"> 
+        editTextName = (EditText) findViewById(R.id.editTextName); 
+        spinnerGenre = (Spinner) findViewById(R.id.spinnerGenres); 
+        listViewArtists = (ListView) findViewById(R.id.listViewArtists); 
+ 
+        buttonAddArtist = (Button) findViewById(R.id.buttonAddArtist); 
+ 
+        </span><span class="s3">//list to store menus</span><span class="s1">
+        menus = </span><span class="s0">new </span><span class="s1">ArrayList&lt;&gt;();
+ 
+ 
+        </span><span class="s3">//adding an onclicklistener to button</span><span class="s1"> 
+        buttonAddArtist.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View view) { 
+                </span><span class="s3">//calling the method addArtist()</span><span class="s1"> 
+                </span><span class="s3">//the method is defined below</span><span class="s1"> 
+                </span><span class="s3">//this method is actually performing the write operation</span><span class="s1"> 
+                addArtist(); 
+            } 
+        }); 
+ 
+        </span><span class="s3">//attaching listener to listview</span><span class="s1"> 
+        listViewArtists.setOnItemClickListener(</span><span class="s0">new </span><span class="s1">AdapterView.OnItemClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onItemClick(AdapterView&lt;?&gt; adapterView, View view, </span><span class="s0">int </span><span class="s1">i, </span><span class="s0">long </span><span class="s1">l) { 
+                </span><span class="s3">//getting the selected menu</span><span class="s1">
+                Artist menu = menus.get(i);
+ 
+                </span><span class="s3">//creating an intent</span><span class="s1"> 
+                Intent intent = </span><span class="s0">new </span><span class="s1">Intent(getApplicationContext(), ArtistActivity.</span><span class="s0">class</span><span class="s1">); 
+ 
+                </span><span class="s3">//putting menu name and id to intent</span><span class="s1">
+                intent.putExtra(ARTIST_ID, menu.getArtistId());
+                intent.putExtra(ARTIST_NAME, menu.getArtistName());
+ 
+                </span><span class="s3">//starting the activity with intent</span><span class="s1"> 
+                startActivity(intent); 
+            } 
+        }); 
+ 
+        listViewArtists.setOnItemLongClickListener(</span><span class="s0">new </span><span class="s1">AdapterView.OnItemLongClickListener() { 
+            @Override 
+            </span><span class="s0">public boolean </span><span class="s1">onItemLongClick(AdapterView&lt;?&gt; adapterView, View view, </span><span class="s0">int </span><span class="s1">i, </span><span class="s0">long </span><span class="s1">l) { 
+                Artist menu = menus.get(i);
+                showUpdateDeleteDialog(menu.getArtistId(), menu.getArtistName());
+                </span><span class="s0">return true</span><span class="s1">; 
+            } 
+        }); 
+ 
+ 
+    } 
+ 
+    </span><span class="s0">private void </span><span class="s1">showUpdateDeleteDialog(</span><span class="s0">final </span><span class="s1">String artistId, String menuName) {
+ 
+        AlertDialog.Builder dialogBuilder = </span><span class="s0">new </span><span class="s1">AlertDialog.Builder(</span><span class="s0">this</span><span class="s1">); 
+        LayoutInflater inflater = getLayoutInflater(); 
+        </span><span class="s0">final </span><span class="s1">View dialogView = inflater.inflate(R.layout.update_dialog, </span><span class="s0">null</span><span class="s1">); 
+        dialogBuilder.setView(dialogView); 
+ 
+        </span><span class="s0">final </span><span class="s1">EditText editTextName = (EditText) dialogView.findViewById(R.id.editTextName); 
+        </span><span class="s0">final </span><span class="s1">Spinner spinnerGenre = (Spinner) dialogView.findViewById(R.id.spinnerGenres); 
+        </span><span class="s0">final </span><span class="s1">Button buttonUpdate = (Button) dialogView.findViewById(R.id.buttonUpdateArtist); 
+        </span><span class="s0">final </span><span class="s1">Button buttonDelete = (Button) dialogView.findViewById(R.id.buttonDeleteArtist); 
+ 
+        dialogBuilder.setTitle(menuName);
+        </span><span class="s0">final </span><span class="s1">AlertDialog b = dialogBuilder.create(); 
+        b.show(); 
+ 
+ 
+        buttonUpdate.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View view) { 
+                String name = editTextName.getText().toString().trim(); 
+                String genre = spinnerGenre.getSelectedItem().toString(); 
+                </span><span class="s0">if </span><span class="s1">(!TextUtils.isEmpty(name)) { 
+                    updateArtist(artistId, name, genre); 
+                    b.dismiss(); 
+                } 
+            } 
+        }); 
+ 
+ 
+        buttonDelete.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onClick(View view) { 
+ 
+                deleteArtist(artistId); 
+                b.dismiss(); 
+            } 
+        }); 
+    } 
+ 
+    </span><span class="s0">private boolean </span><span class="s1">updateArtist(String id, String name, String genre) { 
+        </span><span class="s3">//getting the specified menu reference</span><span class="s1">
+        DatabaseReference dR = FirebaseDatabase.getInstance().getReference(</span><span class="s2">&quot;menus&quot;</span><span class="s1">).child(id);
+ 
+        </span><span class="s3">//updating menu</span><span class="s1">
+        Artist menu = </span><span class="s0">new </span><span class="s1">Artist(id, name, genre);
+        dR.setValue(menu);
+        Toast.makeText(getApplicationContext(), </span><span class="s2">&quot;Artist Updated&quot;</span><span class="s1">, Toast.LENGTH_LONG).show(); 
+        </span><span class="s0">return true</span><span class="s1">; 
+    } 
+ 
+    </span><span class="s0">private boolean </span><span class="s1">deleteArtist(String id) { 
+        </span><span class="s3">//getting the specified menu reference</span><span class="s1">
+        DatabaseReference dR = FirebaseDatabase.getInstance().getReference(</span><span class="s2">&quot;menus&quot;</span><span class="s1">).child(id);
+ 
+        </span><span class="s3">//removing menu</span><span class="s1">
+        dR.removeValue(); 
+ 
+        </span><span class="s3">//getting the tracks reference for the specified menu</span><span class="s1">
+        DatabaseReference drTracks = FirebaseDatabase.getInstance().getReference(</span><span class="s2">&quot;tracks&quot;</span><span class="s1">).child(id); 
+ 
+        </span><span class="s3">//removing all tracks</span><span class="s1"> 
+        drTracks.removeValue(); 
+        Toast.makeText(getApplicationContext(), </span><span class="s2">&quot;Artist Deleted&quot;</span><span class="s1">, Toast.LENGTH_LONG).show(); 
+ 
+        </span><span class="s0">return true</span><span class="s1">; 
+    } 
+ 
+    @Override 
+    </span><span class="s0">protected void </span><span class="s1">onStart() { 
+        </span><span class="s0">super</span><span class="s1">.onStart(); 
+        </span><span class="s3">//attaching value event listener</span><span class="s1"> 
+        databaseArtists.addValueEventListener(</span><span class="s0">new </span><span class="s1">ValueEventListener() { 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onDataChange(DataSnapshot dataSnapshot) { 
+ 
+                </span><span class="s3">//clearing the previous menu list</span><span class="s1">
+                menus.clear();
+ 
+                </span><span class="s3">//iterating through all the nodes</span><span class="s1"> 
+                </span><span class="s0">for </span><span class="s1">(DataSnapshot postSnapshot : dataSnapshot.getChildren()) { 
+                    </span><span class="s3">//getting menu</span><span class="s1">
+                    Artist menu = postSnapshot.getValue(Artist.</span><span class="s0">class</span><span class="s1">);
+                    </span><span class="s3">//adding menu to the list</span><span class="s1">
+                    menus.add(menu);
+                } 
+ 
+                </span><span class="s3">//creating adapter</span><span class="s1"> 
+                ArtistList artistAdapter = </span><span class="s0">new </span><span class="s1">ArtistList(MainActivity.</span><span class="s0">this</span><span class="s1">, menus);
+                </span><span class="s3">//attaching adapter to the listview</span><span class="s1"> 
+                listViewArtists.setAdapter(artistAdapter); 
+            } 
+ 
+            @Override 
+            </span><span class="s0">public void </span><span class="s1">onCancelled(DatabaseError databaseError) { 
+ 
+            } 
+        }); 
+    } 
+ 
+ 
+    </span><span class="s3">/* 
+    * This method is saving a new menu to the
+    * Firebase Realtime Database 
+    * */</span><span class="s1"> 
+    </span><span class="s0">private void </span><span class="s1">addArtist() { 
+        </span><span class="s3">//getting the values to save</span><span class="s1"> 
+        String name = editTextName.getText().toString().trim(); 
+        String genre = spinnerGenre.getSelectedItem().toString(); 
+ 
+        </span><span class="s3">//checking if the value is provided</span><span class="s1"> 
+        </span><span class="s0">if </span><span class="s1">(!TextUtils.isEmpty(name)) { 
+ 
+            </span><span class="s3">//getting a unique id using push().getKey() method</span><span class="s1"> 
+            </span><span class="s3">//it will create a unique id and we will use it as the Primary Key for our Artist</span><span class="s1"> 
+            String id = databaseArtists.push().getKey(); 
+ 
+            </span><span class="s3">//creating an Artist Object</span><span class="s1"> 
+            Artist menu = </span><span class="s0">new </span><span class="s1">Artist(id, name, genre);
+ 
+            </span><span class="s3">//Saving the Artist</span><span class="s1"> 
+            databaseArtists.child(id).setValue(menu);
+ 
+            </span><span class="s3">//setting edittext to blank again</span><span class="s1"> 
+            editTextName.setText(</span><span class="s2">&quot;&quot;</span><span class="s1">); 
+ 
+            </span><span class="s3">//displaying a success toast</span><span class="s1"> 
+            Toast.makeText(</span><span class="s0">this</span><span class="s1">, </span><span class="s2">&quot;Artist added&quot;</span><span class="s1">, Toast.LENGTH_LONG).show(); 
+        } </span><span class="s0">else </span><span class="s1">{ 
+            </span><span class="s3">//if the value is not given displaying a toast</span><span class="s1"> 
+            Toast.makeText(</span><span class="s0">this</span><span class="s1">, </span><span class="s2">&quot;Please enter a name&quot;</span><span class="s1">, Toast.LENGTH_LONG).show(); 
+        } 
+    } 
+} 
+</span></pre>
+</body>
+</html>
